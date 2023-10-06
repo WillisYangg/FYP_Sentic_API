@@ -37,7 +37,7 @@ def execute_query(connection, query):
     
 def insert_df_to_table(df, table):
     config = configparser.ConfigParser()
-    config.read('config.ini')
+    config.read('../config.ini')
     default = config['DEFAULT-SQLALCHEMY']
     engine = sqlalchemy.create_engine('mysql+mysqlconnector://{0}:{1}@{2}/{3}'.
                                                format(default['DB_USER'], default['DB_PASSWORD'], 
