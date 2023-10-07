@@ -5,6 +5,9 @@ from selenium.webdriver.common.keys import Keys
 from getpass import getpass
 from time import sleep
 import pandas as pd
+import configparser
+import sqlalchemy
+import mysql.connector
 
 PATH = './chromedriver'
 username = 'willissssa'
@@ -13,7 +16,31 @@ password=getpass()
 
 target_url = "https://twitter.com"
 
-def twitter_data_extraction(search_query):
+def connect_to_db():
+    config = configparser.ConfigParser()
+    config.read('../config.ini')
+    default = config['DEFAULT-SQLCONNECTOR']
+    return mysql.connector.connect(
+        host=default['DB_HOST'],
+        user=default['DB_USER'],
+        password=default['DB_PASSWORD'],
+        database=default['DB_DATABASE']
+    )
+    
+def execute_query(connection, query):
+    cursor = connection.cursor()
+    cursor.execute(query)
+    
+def insert_df_to_table(df, table):
+    config = configparser.ConfigParser()
+    config.read('../config.ini')
+    default = config['DEFAULT-SQLALCHEMY']
+    engine = sqlalchemy.create_engine('mysql+mysqlconnector://{0}:{1}@{2}/{3}'.
+                                               format(default['DB_USER'], default['DB_PASSWORD'], 
+                                                      default['DB_IP'], default['DB_DATABASE']))
+    df.to_sql(con=engine, name=table, if_exists='append', index=False)
+
+def twitter_data_extraction(search_query, table):
     service = Service(executable_path=PATH)
     options = webdriver.ChromeOptions()
     driver = webdriver.Chrome(service=service, options=options)
@@ -58,7 +85,7 @@ def twitter_data_extraction(search_query):
         sleep(5)
         tweets = driver.find_elements("xpath", "//article[@data-testid='tweet']")
         Tweets2 = list(set(Tweets))
-        if len(Tweets2) > 9:
+        if len(Tweets2) > 5:
             break
 
     driver.close()
@@ -66,15 +93,18 @@ def twitter_data_extraction(search_query):
     df = pd.DataFrame(zip(TimeStamps,Tweets),columns=['TimeStamps','Tweets'])
     df = df.drop_duplicates().reset_index(drop=True)
 
-    df.to_csv("{}_twitter.csv".format(search_query))
+    # df.to_csv("{}_twitter.csv".format(search_query))
+    
+    insert_df_to_table(df, table)
     
 if __name__ == "__main__":
+    table = 'twitter_data'
     file_path = 'twitter_search.txt'
     with open(file_path, 'r') as file:
         for search_query in file:
             print("------------------------------------------------")
             print("Search Query: {}".format(search_query))
             try:
-                twitter_data_extraction(search_query)
+                twitter_data_extraction(search_query, table)
             except Exception as e:
                 print("Data Extraction Failed: {}".format(e))
