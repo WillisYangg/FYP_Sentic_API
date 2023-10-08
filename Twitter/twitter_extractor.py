@@ -9,19 +9,20 @@ import configparser
 import sqlalchemy
 import mysql.connector
 from datetime import date
+import sys
 
 today = date.today()
 
-PATH = './chromedriver'
+PATH = 'Twitter/chromedriver'
 username = 'willissssa'
-password=getpass()
+password='Drogba11&'
 # search_query='depression'
 
 target_url = "https://twitter.com"
 
-def connect_to_db():
+def connect_to_db(config_file):
     config = configparser.ConfigParser()
-    config.read('../config.ini')
+    config.read(config_file)
     default = config['DEFAULT-SQLCONNECTOR']
     return mysql.connector.connect(
         host=default['DB_HOST'],
@@ -34,9 +35,9 @@ def execute_query(connection, query):
     cursor = connection.cursor()
     cursor.execute(query)
     
-def insert_df_to_table(df, table):
+def insert_df_to_table(df, table, config_file):
     config = configparser.ConfigParser()
-    config.read('../config.ini')
+    config.read(config_file)
     default = config['DEFAULT-SQLALCHEMY']
     engine = sqlalchemy.create_engine('mysql+mysqlconnector://{0}:{1}@{2}/{3}'.
                                                format(default['DB_USER'], default['DB_PASSWORD'], 
@@ -159,7 +160,7 @@ def twitter_data_extraction_from_page(search_query, table):
     df['Date Scraped'] = today
     df = df.drop_duplicates().reset_index(drop=True)
     
-    insert_df_to_table(df, table)
+    insert_df_to_table(df, table, config_file)
     
 def scrape_from_twitter(file_path, table):
     with open(file_path, 'r') as file:
@@ -173,6 +174,7 @@ def scrape_from_twitter(file_path, table):
                 print("Data Extraction Failed: {}".format(e))
     
 if __name__ == "__main__":
+    file_path = sys.argv[1]
+    config_file = sys.argv[2]
     table = 'twitter_data'
-    file_path = 'twitter_search.txt'
     scrape_from_twitter(file_path, table)
