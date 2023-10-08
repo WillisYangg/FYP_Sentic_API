@@ -168,7 +168,7 @@ def scrape_from_twitter(file_path, table):
             print("------------------------------------------------")
             print("Search Query: {}".format(search_query))
             try:
-                # twitter_data_extraction_from_hashtags(search_query, table)
+                twitter_data_extraction_from_hashtags(search_query, table)
                 twitter_data_extraction_from_page(search_query, table)
             except Exception as e:
                 print("Data Extraction Failed: {}".format(e))
