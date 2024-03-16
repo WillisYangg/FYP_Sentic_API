@@ -87,3 +87,17 @@ for epoch in range(max_epochs):
         print(f"Epoch {epoch+1}/{max_epochs}, loss={loss.item():.4f}")
 
 print(f"Final loss: loss={loss.item():.4f}")
+
+data = {
+    "model_state": model.state_dict(),
+    "input_size": input_size,
+    "output_size": output_size,
+    "hidden_size": hidden_size,
+    "all_words": all_words,
+    "tags": tags
+}
+
+FILE = "data.pth"
+torch.save(data, FILE)
+
+print(f"Training complete, file saved to {FILE}")
