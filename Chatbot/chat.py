@@ -5,6 +5,7 @@ from model import NeuralNet
 from nltk_func import bag_of_words, tokenize
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+print(device)
 
 with open('intents.json', 'r') as f:
     intents = json.load(f)
@@ -35,7 +36,10 @@ while True:
     x = x.reshape(1, x.shape[0])
     x = torch.from_numpy(x)
 
-    output = model(x.cuda())
+    if device == 'cuda':
+        output = model(x.cuda())
+    else:
+        output = model(x.cpu())
 
     _, predicted = torch.max(output, dim=1)
     tag = tags[predicted.item()]
