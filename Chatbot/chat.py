@@ -7,7 +7,7 @@ from nltk_func import bag_of_words, tokenize
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print(device)
 
-with open('intents.json', 'r') as f:
+with open('sentiment_text_dict.json', 'r') as f:
     intents = json.load(f)
 
 FILE = 'data.pth'
@@ -36,10 +36,7 @@ while True:
     x = x.reshape(1, x.shape[0])
     x = torch.from_numpy(x)
 
-    if device == 'cuda':
-        output = model(x.cuda())
-    else:
-        output = model(x.cpu())
+    output = model(x.cuda())
 
     _, predicted = torch.max(output, dim=1)
     tag = tags[predicted.item()]

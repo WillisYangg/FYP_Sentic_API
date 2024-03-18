@@ -7,7 +7,7 @@ import torch
 import torch.nn as nn
 from torch.utils.data import Dataset, DataLoader
 
-with open('intents.json', 'r') as f:
+with open('sentiment_text_dict.json', 'r') as f:
     intents = json.load(f)
 
 all_words = []
@@ -64,6 +64,7 @@ dataset = ChatDataset()
 train_loader = DataLoader(dataset=dataset, batch_size=batch_size, shuffle=True, num_workers=0)
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+print(device)
 model = NeuralNet(input_size, hidden_size, output_size).to(device)
 
 # loss and optimizer
