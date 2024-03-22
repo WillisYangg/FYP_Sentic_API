@@ -6,6 +6,12 @@ from model import NeuralNet
 import torch
 import torch.nn as nn
 from torch.utils.data import Dataset, DataLoader
+from datetime import date
+from datetime import datetime
+
+today = date.today()
+current_time = datetime.now()
+current_time = current_time.strftime("%H_%M_%S")
 
 with open('sentiment_text_dict.json', 'r') as f:
     intents = json.load(f)
@@ -53,8 +59,8 @@ class ChatDataset(Dataset):
         return self.n_samples
 
 # hyperparameters
-batch_size = 8
-hidden_size = 8
+batch_size = 1024
+hidden_size = 1024
 output_size = len(tags)
 input_size = len(x_train[0])
 learning_rate = 0.001
@@ -64,12 +70,12 @@ dataset = ChatDataset()
 train_loader = DataLoader(dataset=dataset, batch_size=batch_size, shuffle=True, num_workers=0)
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-print(device)
+print(f'Device: {device}')
 model = NeuralNet(input_size, hidden_size, output_size).to(device)
 
 # loss and optimizer
 criterion = nn.CrossEntropyLoss()
-optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
 
 for epoch in range(max_epochs):
     for (words, labels) in train_loader:
@@ -98,7 +104,7 @@ data = {
     "tags": tags
 }
 
-FILE = "data.pth"
+FILE = "./Data/data_{}_{}.pth".format(today, current_time)
 torch.save(data, FILE)
 
 print(f"Training complete, file saved to {FILE}")
