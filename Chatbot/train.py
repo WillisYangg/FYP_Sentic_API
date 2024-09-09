@@ -63,7 +63,7 @@ batch_size = 1024
 hidden_size = 1024
 output_size = len(tags)
 input_size = len(x_train[0])
-learning_rate = 0.001
+learning_rate = 0.0001
 max_epochs = 1000
 
 dataset = ChatDataset()
@@ -75,7 +75,7 @@ model = NeuralNet(input_size, hidden_size, output_size).to(device)
 
 # loss and optimizer
 criterion = nn.CrossEntropyLoss()
-optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
+optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
 for epoch in range(max_epochs):
     for (words, labels) in train_loader:
@@ -87,7 +87,7 @@ for epoch in range(max_epochs):
         loss = criterion(outputs, labels)
 
         optimizer.zero_grad()
-        loss.backward() # back propagation
+        loss.backward()
         optimizer.step()
 
     if (epoch+1) % 100 == 0:
